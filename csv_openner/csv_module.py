@@ -55,11 +55,10 @@ def convert_csv_to_obj():
 			# Iteração de cada coluna depois de passa do reader.
 			for row in csv_reader:
 				# A coluna do csv é representado por uma lista, e fazemos o append para a lista de objetos
-				print(row)
+				#print(row)
 				csv_list.append(row)
-	int_version = str_column_to_int(convert_csv_to_obj())
-	#print(int_version)
-	return int_version
+
+	return csv_list
 
 
 #int_version = str_column_to_int(convert_csv_to_obj())
