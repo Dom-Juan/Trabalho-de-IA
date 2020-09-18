@@ -30,7 +30,8 @@ def functions(type,number):
         else: return (-1)
 
 class Neuronio(object):
-    def __init__(self, camadas_entrada, camadas_saida, tamanho_camada_oculta, saida, desejado,tipo_function, taxa_aprendizado):
+    def __init__(self, entrada, camadas_entrada, camadas_saida, tamanho_camada_oculta, saida,tipo_function, taxa_aprendizado):
+        self.entrada = entrada
         self.camadas_entrada = camadas_entrada # vetor de objeto do tipo camada
         self.camadas_saida = camadas_saida # vetor de objeto do tipo camada
         self.tamanho_camada_oculta = tamanho_camada_oculta
@@ -38,7 +39,7 @@ class Neuronio(object):
         self.tipo_function = tipo_function
         self.taxa_aprendizado = taxa_aprendizado
         seed(random())
-        self.pesos_entrada = [random() for i in range(len(self.camadas_entrada))]
+        self.pesos_entrada = [random() for i in range(len(self.camadas_entrada[self.entrada]))]
         self.inferencia = list()
         self.pesos_saida =  [random() for i in range(len(self.camadas_saida))]
 
@@ -52,13 +53,13 @@ class Neuronio(object):
     def calc_pesos(self):
         net = 0
         for i in range(len(self.pesos_entrada)):
-            net += self.pesos_entrada*self.camadas_entrada[i]
+            net += self.pesos_entrada*self.camadas_entrada[self.entrada][i]
         return net
 
     def calc_pesos_f(self):
         net = 0
         for i in range(len(self.pesos_entrada)):
-            net += float(self.pesos_entrada*self.camadas_entrada[i])
+            net += float(self.pesos_entrada*self.camadas_entrada[self.entrada][i])
         return net
 
     def ajustar_pesos(self, error):
@@ -101,7 +102,7 @@ class Neuronio(object):
     def calcular_erro_oculta(self, net, desejado, obtido):
         erro_saida = self.erro_camada_saida(net, desejado, obtido)
         erros_camada_oculta = list()
-        for i in range(len(self.camadas_entrada)):
+        for i in range(len(self.camadas_entrada[self.entrada])):
             erros_camada_oculta.append((activation_functions_derivative(self.tipo_function, net)*erro_saida*self.pesos_saida[i]))
         self.ajustar_pesos(erros_camada_oculta)
 
