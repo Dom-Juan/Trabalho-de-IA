@@ -118,7 +118,7 @@ class Neuronio(object):
             erro_rede = erro_rede + ((1/2)*((erro_saida)**2))
         return 
     
-    def treino(self, desejado, obtido):
+    def treino(self):
         net = self.calc_pesos()
         # prop = self.funcao_propagacao(net)
         net_saida = self.calc_pesos_f()
