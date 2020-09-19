@@ -37,3 +37,4 @@ class NeuralNetwork(object):
                 desejados[i][self.classes[i]] = 1
             else:
                 desejados[i][self.classes[i]] = -1
+        return desejados

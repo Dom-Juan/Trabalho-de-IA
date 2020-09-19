@@ -100,6 +100,10 @@ def loop():
                     print("É necessário definir uma maneira de treinar a IA!!!")
                     break
                 print("-------- Fase de teste --------\n")
+                for i in range(len(csv)):
+                    nn.camadas_ocultas[i].testando()
+                matriz = nn.construir_matriz_confusao()
+                print(matriz)
         elif(op == 0): return 0
         else: print("\nDigite uma opção válida!!!\n")
         
