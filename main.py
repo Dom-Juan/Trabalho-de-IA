@@ -78,7 +78,7 @@ def loop():
                     for i in range(iteractions):
                         while (j < len(nn.camadas_ocultas)):
                             if(iteractions > i):
-                                erro = nn.camadas_ocultas[j].treinar()
+                                erro = nn.camadas_ocultas[j].treino()
                             else:
                                 flag = False
                                 break
@@ -90,7 +90,7 @@ def loop():
                     for i in range(iteractions):
                         while (j < len(nn.camadas_ocultas)):
                             if(erro <= erro_limite):
-                                erro = nn.camadas_ocultas[j].treinar()
+                                erro = nn.camadas_ocultas[j].treino()
                             else:
                                 flag = False
                                 break

@@ -44,89 +44,115 @@ class Neuronio(object):
         self.pesos_saida =  [random() for i in range(len(self.camadas_saida))]
 
 
+    # Função que realiza a propagação.
     def funcao_propagacao(self, net):
         propagacao = list()
         for i in range(self.tamanho_camada_oculta):
             propagacao[i] = activation_functions(self.tipo_function, net)
         return propagacao
 
+    # Calcula os pesos em int
     def calc_pesos(self):
         net = 0
-        for i in range(len(self.pesos_entrada)):
-            net += self.pesos_entrada*self.camadas_entrada[self.entrada][i]
+        for i in range(self.tamanho_camada_oculta):
+            for j in range(self.tamanho_camada_oculta):
+                if(j < 6):
+                    net += self.pesos_entrada*self.camadas_entrada[i][j]
         return net
 
+    # Calcula os pesos em float
     def calc_pesos_f(self):
         net = 0
-        for i in range(len(self.pesos_entrada)):
-            net += float(self.pesos_entrada*self.camadas_entrada[self.entrada][i])
+        for i in range(self.tamanho_camada_oculta):
+            for j in range(self.tamanho_camada_oculta):
+                if(j < 6):
+                    net += float(self.pesos_entrada*self.camadas_entrada[i][j])
         return net
 
+    # Ajuste dos pesos da camada de entrada Entrada - Peso - Neuronio
     def ajustar_pesos(self, error):
         for i in self.pesos_entrada:
             self.pesos_entrada[i] = self.pesos_entrada[i] + error[i]*self.taxa_aprendizado
     
-    def ajustar_pesos_saida(self,erro_saida):
+    # Ajuste dos pesos da camada de entrada Neuronio - Peso - Saida
+    def ajustar_pesos_saida(self,erro_saida, propagacao):
         for i in range(len(self.camadas_saida)):
-            self.pesos_saida[i] = self.pesos_saida[i] * (self.taxa_aprendizado * erro_saida[i])
+            self.pesos_saida[i] = self.pesos_saida[i] * (self.taxa_aprendizado * erro_saida[i] * propagacao[i])
 
-    def erro_camada_saida(self, net, desejado, obtido):
-        erro_saida = list()
-        for i in range(len(self.camadas_saida)):
-            erro_saida[i] = ((desejado - obtido)*activation_functions_derivative(self.tipo_function, net))
-        return erro_saida
+    # Realiza o cálculo da camada de saída.
+    def erro_camada_saida(self, net):
+        desejado = list()
+        if(self.tipo_function == 1):
+            for i in range(len(self.camadas_saida)):
+                if(i == self.saida):
+                    desejado[self.saida] = 1
+                else: desejado[i] = 0 
+            erro_saida = list()
+            for i in range(len(self.camadas_saida)):
+                erro_saida[i] = ((desejado - self.camadas_saida[i])*activation_functions_derivative(self.tipo_function, net))
+            return erro_saida
+        elif(self.tipo_function == 2):
+            for i in range(len(self.camadas_saida)):
+                if(i == self.saida):
+                    desejado[self.saida] = 1
+                else: desejado[i] = -1 
+            erro_saida = list()
+            for i in range(len(self.camadas_saida)):
+                erro_saida[i] = ((desejado - self.camadas_saida[i])*activation_functions_derivative(self.tipo_function, net))
+            return erro_saida
+        else:
+            return None
 
-    def achar_erro_camada_oculta(self, net, erro_saida):
+    # Calcula os erros da camada oculta
+    def erro_camada_oculta(self, net, erro_saida):
         erros = list()
-        for i in range(len(self.pesos_entrada)):
-            erros.append((activation_functions_derivative(self.tipo_function, net)) - erro_saida*self.pesos_saida[i])
+        somatorio = 0.0
+        for i in range(len(self.camadas_saida)):
+            somatorio = somatorio + erro_saida[i]*self.pesos_saida[i]
+            erros.append((activation_functions_derivative(self.tipo_function, net)) * somatorio)
         return erros
-
-    #def feedfoward(self):
-    #    net = self.calc_pesos()
-    #    for i in range(len(self.camadas_entrada)):
-    #        self.inferencia[i] = activation_functions(self.tipo_function, net)
-    #    net_saida = 0
-    #    for i in range(len(self.camadas_saida)):
-    #        net_saida += self.inferencia[i]*self.pesos_saida[i]
-    #    net_saida = activation_functions(self.tipo_function, net_saida)
-    #    erro_saida = self.erro_camada_saida(net_saida, self.saida, net_saida)
-    #    return erro_saida
 
     def erro_de_rede(self, erro_saida):
         erro_rede = 0
         for i in range(len(self.pesos_saida)):
-            erro_rede += (1/2)*(erro_saida)**2
+            erro_rede = erro_rede + ((1/2)*((erro_saida)**2))
         return 
-
-    def calcular_erro_oculta(self, net, desejado, obtido):
-        erro_saida = self.erro_camada_saida(net, desejado, obtido)
-        erros_camada_oculta = list()
-        for i in range(len(self.camadas_entrada[self.entrada])):
-            erros_camada_oculta.append((activation_functions_derivative(self.tipo_function, net)*erro_saida*self.pesos_saida[i]))
-        self.ajustar_pesos(erros_camada_oculta)
-
-    def valor_saida(self):
-        if(self.tipo_function == 1):
-            for i in range(len(self.saida)):
-                if(i == self.saida):
-                    self.saida[i] = self.pesos_saida[i]
-                else: self.saida[i] = 0
-        else:
-            for i in range(len(self.saida)):
-                if(i == self.saida):
-                    self.saida[i] = self.pesos_saida[i]
-                else: self.saida[i] = -1
     
     def treino(self, desejado, obtido):
         net = self.calc_pesos()
-        prop = self.funcao_propagacao(net)
+        # prop = self.funcao_propagacao(net)
         net_saida = self.calc_pesos_f()
-        pop_saida = self.funcao_propagacao(net_saida)
-        erro_saida = self.erro_camada_saida(net,desejado, obtido)
-        self.calcular_erro_oculta(net, desejado, obtido) # calcula o erro nacamada oculta e ajusta pesos.
+        prop_saida = self.funcao_propagacao(net_saida)
+        erro_saida = self.erro_camada_saida(net)
+        erros_oculta = self.erro_camada_oculta(net, erro_saida) # calcula o erro nacamada oculta.
+        self.ajustar_pesos_saida(erro_saida,prop_saida)
+        self.ajustar_pesos(erros_oculta)
+
         return self.erro_de_rede(erro_saida)
 
+    def testando(self):
+        matriz = list()
+        net = self.calc_pesos()
+        #prop = self.funcao_propagacao(net)
+        net_saida = self.calc_pesos_f()
+        prop_saida = self.funcao_propagacao(net_saida)
+        self.valor_saida(prop_saida)
+
+    # Função para ajudar na construção da matriz de confusão.
+    def valor_saida(self, prop):
+        saida = list()
+        if(self.tipo_function == 1):
+            for i in range(len(self.camadas_saida)):
+                if(prop[i] == self.saida):
+                    saida[i] = self.pesos_saida[i]
+                else: saida[i] = 0
+        else:
+            for i in range(len(self.camadas_saida)):
+                if(prop[i]  == self.saida):
+                    saida[i] = self.pesos_saida[i]
+                else: saida[i] = -1
+        return saida
+    
     def show_pesos(self):
         print("Entradas geradas:")
         for i in self.pesos_entrada:
