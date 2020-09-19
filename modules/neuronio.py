@@ -131,7 +131,6 @@ class Neuronio(object):
         return self.erro_de_rede(erro_saida)
 
     def testando(self):
-        matriz = list()
         net = self.calc_pesos()
         #prop = self.funcao_propagacao(net)
         net_saida = self.calc_pesos_f()
