@@ -21,7 +21,7 @@ def loop():
         print("* 3 -> Treinar IA                                                  *")
         print("* 0 -> Sair                                                        *")
         print("********************************************************************")
-
+        print(">:", end = '')
         op = int(input())
         if(op == 1):
             csv = str_column_to_int(convert_csv_to_obj())
