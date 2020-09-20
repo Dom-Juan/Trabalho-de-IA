@@ -31,8 +31,8 @@ class NeuralNetwork(object):
         self.camada_saidas = [None]*self.tamanho_camada_saida
 
         # Variáveis de rede
-        self.pesos_entrada = np.random.uniform(low= -5, high=5, size=(tamanho_camada_oculta,tamanho_camada_entrada))
-        self.pesos_saida =  np.random.uniform(low= -5, high=5,  size=(tamanho_camada_oculta,tamanho_camada_entrada))
+        self.pesos_entrada = np.random.randn(tamanho_camada_oculta,tamanho_camada_entrada)
+        self.pesos_saida =  np.random.randn(tamanho_camada_oculta,tamanho_camada_entrada)
     
     def treinamento(self, entrada, classe):
         nets_camada_oculta = [0]*self.tamanho_camada_oculta
@@ -43,10 +43,10 @@ class NeuralNetwork(object):
         erros = [0]*self.tamanho_camada_saida
         saidas = [0]*self.tamanho_camada_saida
 
-        calcular_pesos(entrada, nets_camada_oculta, self.tamanho_camada_entrada, self.pesos_entrada)
+        calcular_pesos(entrada, nets_camada_oculta, self.tamanho_camada_oculta, self.tamanho_camada_entrada, self.pesos_entrada)
         calcular_propagacao(nets_camada_oculta, propagacao, self.tamanho_camada_oculta,self.tipo_funcao)
         
-        calcular_pesos(entrada, nets_camada_saida, self.tamanho_camada_oculta, self.pesos_saida)
+        calcular_pesos(entrada, nets_camada_saida, self.tamanho_camada_saida, self.tamanho_camada_oculta, self.pesos_saida)
         calcular_propagacao(nets_camada_saida, saidas, self.tamanho_camada_saida,self.tipo_funcao)
 
         calcular_erros_da_saida(erros, saidas, classe, self.tamanho_camada_saida, nets_camada_saida, self.tipo_funcao)  
@@ -64,17 +64,17 @@ class NeuralNetwork(object):
     
     def testar(self, matriz_confusao, entrada, classe):
         nets_camada_oculta = [0]*self.tamanho_camada_oculta
-        erros_camada_oculta = [0]*self.tamanho_camada_oculta
+        # erros_camada_oculta = [0]*self.tamanho_camada_oculta
         propagacao = [0]*self.tamanho_camada_oculta
         
         nets_camada_saida = [0]*self.tamanho_camada_saida
-        erros = [0]*self.tamanho_camada_saida
+        # erros = [0]*self.tamanho_camada_saida
         saidas = [0]*self.tamanho_camada_saida
 
-        calcular_pesos(entrada, nets_camada_oculta, self.tamanho_camada_entrada, self.pesos_entrada)
+        calcular_pesos(entrada, nets_camada_oculta, self.tamanho_camada_oculta, self.tamanho_camada_entrada, self.pesos_entrada)
         calcular_propagacao(nets_camada_oculta, propagacao, self.tamanho_camada_oculta,self.tipo_funcao)
         
-        calcular_pesos(entrada, nets_camada_saida, self.tamanho_camada_oculta, self.pesos_saida)
+        calcular_pesos(entrada, nets_camada_saida, self.tamanho_camada_saida, self.tamanho_camada_oculta, self.pesos_saida)
         calcular_propagacao(nets_camada_saida, saidas, self.tamanho_camada_saida,self.tipo_funcao)
 
         return verificar(matriz_confusao, classe, self.tamanho_camada_entrada, saidas, self.tamanho_camada_saida, self.tipo_funcao)
@@ -95,7 +95,7 @@ def loop():
     csv = str_column_to_int(convert_csv_to_obj(True))
     classes = []
     matriz = []
-    matriz_confusao = None
+    matriz_confusao = 0
     # loadClasses(classes, csv, matriz)
     neuronios_entrada = 0
     neuronios_saida = 0
@@ -103,7 +103,7 @@ def loop():
     erro = 0
     erro_limite = 0
     iteracoes = 0
-    redeNeural  = 0
+    redeNeural  = None
 
     while(1):
         print("***************************Trabalho de IA***************************")
@@ -111,14 +111,15 @@ def loop():
         print("* 1 -> Inserir CSV                                                 *")
         print("* 2 -> Definir camadas de entrada e saídas                         *")
         print("* 3 -> Definir termino de treinamento                              *")
-        print("* 4 -> Treinar e testar IA                                         *")
-        print("* 5 -> Trocar valor de alguma classe                               *")
+        print("* 4 -> Treinar                                                     *")
+        print("* 5 -> Testar IA                                                   *")
         print("* 0 -> Sair                                                        *")
         print("********************************************************************\n")
         print(">:", end = '')
         op = int(input())
         if(op == 1):
             csv = []
+            #classes = None
             csv = str_column_to_int(convert_csv_to_obj())
             print('CSV aberto:')
             print("X1,X2,X3,X4,X5,X6,Classe")
@@ -126,11 +127,16 @@ def loop():
             [print(i) for i in csv]            
             loadClasses(classes, csv, matriz)
         elif(op == 2):
-            print("Digite o tamanho da camada de entrada")
+            print("Digite  quantidade de neuronios da camada de entrada")
             neuronios_entrada = int(input())
-            print("Digite o tamanho da camada de saída")
+            print("Digite  quantidade de neuronios da camada de saída")
             neuronios_saida = int(input())
-            neuronios_oculta = int(math.sqrt(neuronios_entrada*neuronios_saida))
+            print("Deseja substituir a quantidade de neuronios na camada oculta ?")
+            op2 = int(input())
+            if(op2 == 1):
+                print("Digite a quantidade de neuronios da camada oculta: ")
+                neuronios_oculta = int(input())
+            else: neuronios_oculta = int(math.sqrt(neuronios_entrada*neuronios_saida))
             matriz_confusao = geraMatrizDeConfusao(neuronios_saida)
             print("Tamanho definido com sucesso.")
         elif(op == 3):
@@ -153,57 +159,67 @@ def loop():
                     iteracoes = None
                 else: break
         elif(op == 4):
-            print("********************************************************************")
-            print("* 1 -> Logística                                                   *")
-            print("* 2 -> Tangente Hiperbólica                                        *")
-            print("********************************************************************\n")
-            print("O padrão é Logística\n")
+            if(neuronios_entrada != 0 and neuronios_oculta != 0 and neuronios_saida != 0):
+                print("********************************************************************")
+                print("* 1 -> Logística                                                   *")
+                print("* 2 -> Tangente Hiperbólica                                        *")
+                print("********************************************************************\n")
+                print("O padrão é Logística\n")
 
-            tipo = int(input())
-            if(tipo == 2):
-                tipo_funcao = 2
-            else: tipo_funcao = 1
-            print("Digite a taxa de aprendizado [ padrão é 0.01 ]: ")
-            taxa_aprendizado = float(input())
-            if(taxa_aprendizado == None or taxa_aprendizado == ''):
-                taxa_aprendizado = 0.01
+                tipo = int(input())
+                if(tipo == 2):
+                    tipo_funcao = 2
+                else: tipo_funcao = 1
+                print("Digite a taxa de aprendizado [ padrão é 0.01 ]: ")
+                taxa_aprendizado = float(input())
+                if(taxa_aprendizado == None or taxa_aprendizado == ''):
+                    taxa_aprendizado = 0.01
 
-            redeNeural = NeuralNetwork(neuronios_entrada,neuronios_oculta,neuronios_saida, tipo_funcao, taxa_aprendizado)
+                redeNeural = NeuralNetwork(neuronios_entrada,neuronios_oculta,neuronios_saida, tipo_funcao, taxa_aprendizado)
 
-            print("Pesos -> Entrada <--> Camada Oculta\n"+str(redeNeural.pesos_entrada))
-            print('')
-            print("Pesos -> Camada Oculta <--> Camada de Saída\n"+str(redeNeural.pesos_saida))
+                print("Pesos -> Entrada <--> Camada Oculta\n"+str(redeNeural.pesos_entrada))
+                print('')
+                print("Pesos -> Camada Oculta <--> Camada de Saída\n"+str(redeNeural.pesos_saida))
 
-            if(iteracoes != None and erro_limite == None):
-                for i in range(iteracoes):
-                    if(i % 10 == 0):
-                        print("Iteração:"+str(i))
-                    for j in range(len(matriz)):
-                        erro = redeNeural.treinamento(matriz[j], classes[j])
-                print("Nossa rede errou em: %f" %(erro))
-                print("Testando:")
-                for i in range(len(matriz)):
-                    redeNeural.testar(matriz_confusao, matriz[i], classes[i])
-                print("Matriz de confusão:")
-                for i in matriz_confusao:
-                    print(i)
-            elif(iteracoes == None and erro_limite != None):
-                i = 0
-                while(erro <= erro_limite):
-                    if(i < len(matriz)):
-                        erro = redeNeural.treinamento(matriz[i], classes[i])
-                        i += 1
-                    else: i = 0
-                print("Nossa rede errou em: %f" %(erro))
-                print("Testando:")
-                for i in range(len(matriz)):
-                    redeNeural.testar(matriz_confusao, matriz[i], classes[i])
-                print("Matriz de confusão:")
-                for i in range(len(matriz_confusao)):
-                    print(matriz_confusao[i])
-            else: print("É necessário definir um método de treinamento.\n")
+                if(iteracoes != None and erro_limite == None):
+                    for i in range(iteracoes):
+                        if(i % 10 == 0):
+                            print("Iteração:"+str(i))
+                        for j in range(len(matriz)):
+                            erro = redeNeural.treinamento(matriz[j], classes[j])
+                    print("Nossa rede errou em: %f" %(erro))
+                elif(iteracoes == None and erro_limite != None):
+                    i = 0
+                    while(erro <= erro_limite):
+                        if(i % 10 == 0):
+                            print("Iteração:"+str(i))
+                        if(i < len(matriz)):
+                            erro = redeNeural.treinamento(matriz[i], classes[i])
+                            i += 1
+                        else: i = 0
+                    print("Nossa rede errou em: %f" %(erro))
+                else: print("É necessário definir um método de treinamento.\n")
+            else: print("É necessário definir as quantidade das camadas!!!")
         elif(op == 5):
-            b = 0
+            if( redeNeural != None):
+                print("Pesos -> Entrada <--> Camada Oculta\n"+str(redeNeural.pesos_entrada))
+                print('')
+                print("Pesos -> Camada Oculta <--> Camada de Saída\n"+str(redeNeural.pesos_saida))
+                if(iteracoes != None and erro_limite == None):
+                    print("Testando:")
+                    for i in range(len(matriz)):
+                        redeNeural.testar(matriz_confusao, matriz[i], classes[i])
+                    print("Matriz de confusão:")
+                    for i in range(len(matriz_confusao)):
+                        print(matriz_confusao[i])
+                elif(iteracoes == None and erro_limite != None):
+                    print("Testando:")
+                    for i in range(len(matriz)):
+                        redeNeural.testar(matriz_confusao, matriz[i], classes[i])
+                    print("Matriz de confusão:")
+                    for i in range(len(matriz_confusao)):
+                        print(matriz_confusao[i])
+            else: print("Deve treinar a IA antes de testar ela...")
         elif(op == 0): break
         else: print("Digite uma opção valida")
     return 0
