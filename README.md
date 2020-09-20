@@ -9,6 +9,13 @@ Trabalho de Inteligência Artificual - Rede Neural com Backpropagation em Python
 ### Instalação do Projeto e Utilização
 Instale a versão mais recente de python, baixe python [Link 1](https://www.python.org/downloads/)
 
+[Opcional]
+
+Criar um ambiente virtual usando:
+
+$ py -m venv env
+$ .\env\Scripts\activate
+
 Para atualizar/instalar o pip(instalador de pacotes e libs), use:
 
 ```sh
