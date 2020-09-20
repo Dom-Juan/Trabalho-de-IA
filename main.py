@@ -5,7 +5,8 @@ from csv_openner.pather import get_path
 from modules.rede import NeuralNetwork
 
 def loop():
-    csv = []
+    csv = None
+    classes = []
     iteractions = None
     erro_limite = None
     nn = None
@@ -19,16 +20,22 @@ def loop():
         print("* 1 -> Inserir CSV                                                 *")
         print("* 2 -> Definir termino de treinamento                              *")
         print("* 3 -> Treinar IA                                                  *")
+        print("* 4 -> Trocar valor de alguma classe                               *")
         print("* 0 -> Sair                                                        *")
         print("********************************************************************")
         print(">:", end = '')
         op = int(input())
         if(op == 1):
+            csv = []
             csv = str_column_to_int(convert_csv_to_obj())
             print('CSV aberto:')
             print("X1,X2,X3,X4,X5,X6,Classe")
             time.sleep(2)
             [print(i) for i in csv]
+            for i in csv:
+                for j in range(len(i)):
+                    if(j == 6):
+                        classes.append(i[j])
         elif(op == 2):
             while (1):
                 print("********************************************************************")
@@ -42,17 +49,14 @@ def loop():
                 if(op == 1):
                     print("Digite o número de iterações(Padrão é 500): ")
                     iteractions = int(input())
+                    erro_limite = None
                 elif(op == 2):
                     print("Digite o erro limite: ")
                     erro_limite = float(input())
+                    iteractions = None
                 else: break
         elif(op == 3):
-            classes = []
             flag = True
-            for i in csv:
-                for j in range(len(i)):
-                    if(j == 6):
-                        classes.append(i[j])
 
             print("********************************************************************")
             print("* 1 -> Logística                                                   *")
@@ -70,40 +74,55 @@ def loop():
             if(taxa_aprendizado == None or taxa_aprendizado == ''):
                 taxa_aprendizado = 0.01
             print("Treinando...")
-            while(flag == True):
-                j = 0
-                if(iteractions != None and erro_limite == None):
-                    #(entradas, quantidade_entradas, quantidade_saidas, classes, tipo_function, taxa_aprendizado, quantidade_iteracao)
-                    nn = NeuralNetwork(csv,6,6,classes,tipo_function,taxa_aprendizado,int(iteractions))
-                    for i in range(iteractions):
-                        while (j < len(nn.camadas_ocultas)):
-                            if(iteractions > i):
-                                erro = nn.camadas_ocultas[j].treino()
-                            else:
-                                flag = False
-                                break
-                            j = j + 1
-                        i+= i
-                elif(iteractions == None and erro_limite != None):
-                    #(entradas, quantidade_entradas, quantidade_saidas, classes, tipo_function, taxa_aprendizado, quantidade_iteracao):
-                    nn = NeuralNetwork(csv,6,6,classes,tipo_function,taxa_aprendizado,0)
-                    for i in range(iteractions):
-                        while (j < len(nn.camadas_ocultas)):
-                            if(erro <= erro_limite):
-                                erro = nn.camadas_ocultas[j].treino()
-                            else:
-                                flag = False
-                                break
-                            j = j + 1
-                        i+= i
-                else:
-                    print("É necessário definir uma maneira de treinar a IA!!!")
-                    break
-                print("-------- Fase de teste --------\n")
+            j = 0
+            if(iteractions != None and erro_limite == None):
+                #(entradas, quantidade_entradas, quantidade_saidas, classes, tipo_function, taxa_aprendizado, quantidade_iteracao)
+                nn = NeuralNetwork(csv,6,6,classes,tipo_function,taxa_aprendizado,int(iteractions))
+                for i in range(iteractions):
+                    while (j < len(nn.camadas_ocultas)):
+                        if(iteractions > i):
+                            erro = nn.camadas_ocultas[j].treino()
+                        else:
+                            flag = False
+                            break
+                        j = j + 1
+                    i+= i
+                print("Erro da Rede: %d" %(erro))
+                print("-------- Fase de teste e Matriz --------\n")
                 for i in range(len(csv)):
-                    nn.camadas_ocultas[i].testando()
-                matriz = nn.construir_matriz_confusao()
+                    for j in range(len(nn.camadas_ocultas)):
+                        nn.camadas_ocultas[j].testando()
+                saidas = nn.retorno_saidas()
+                matriz = list()
+                for i in range(len(saidas)):
+                    matriz.append(saidas[i])
                 print(matriz)
+            elif(iteractions == None and erro_limite != None):
+                #(entradas, quantidade_entradas, quantidade_saidas, classes, tipo_function, taxa_aprendizado, quantidade_iteracao):
+                nn = NeuralNetwork(csv,6,6,classes,tipo_function,taxa_aprendizado,0)
+                j = 0
+                while (erro <= erro_limite):
+                    print("Loop:"+str(j))
+                    if(j < 6):
+                        erro = nn.camadas_ocultas[j].treino()
+                    else:
+                        j = 0
+                    j = j + 1
+                print("Erro da Rede: %d" %(erro))
+                print("-------- Fase de teste e Matriz --------\n")
+                for i in range(len(csv)):
+                    for j in range(len(nn.camadas_ocultas)):
+                        nn.camadas_ocultas[j].testando()
+                saidas = nn.retorno_saidas()
+                matriz = list()
+                for i in range(len(saidas)):
+                    matriz.append(saidas[i])
+                print(matriz)
+            else:
+                print("É necessário definir uma maneira de treinar a IA!!!")
+                break
+        elif(op == 4):
+            print(classes)
         elif(op == 0): return 0
         else: print("\nDigite uma opção válida!!!\n")
         
