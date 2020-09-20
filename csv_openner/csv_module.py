@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# Módulos do Python
 import csv
 
 #import pather
@@ -5,6 +7,7 @@ from csv import reader
 from csv import DictReader
 from pathlib import Path, PureWindowsPath
 from collections import defaultdict
+# Módulos do Python
 
 # Converte e retorna o caminho digitado correto
 def get_path(filepath):
@@ -42,10 +45,13 @@ def str_column_to_int(dataset):
 
 
 # Abre o arquivo em modo de visualização e retorna uma lista de listas.
-def convert_csv_to_obj():
-	print("Digite o caminho com o nome do csv para ser aberto e convertido:")
-	filename = str(input())
-	filename = get_path(filename)
+def convert_csv_to_obj(auto = False):
+	if(auto == False):
+		print("Digite o caminho com o nome do csv para ser aberto e convertido:")
+		filename = str(input())
+		filename = get_path(filename)
+	else:
+		filename = 'D:\\projects\\Python\\trab-ia\\Trabalho de IA v2\\csv_openner\\teste.csv'
 	csv_list = list()
 	with open(filename, 'r') as read_obj:
 		csv_reader = reader(read_obj)

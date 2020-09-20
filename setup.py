@@ -7,6 +7,6 @@ setup(
     author='Juan & Monge',
     #install_requires=['numpy ', 'pysimplegui',
     #                'pandas', 'matplotlib'],
-    install_requires=['numpy ', 'pandas', 'matplotlib'],
+    install_requires=['numpy'],
     packages=find_packages(),
 )
